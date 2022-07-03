@@ -1,12 +1,15 @@
 import { createContext, useEffect, useState } from "react";
 import UserPool from "../UserPool";
 import { AuthenticationDetails, CognitoRefreshToken, CognitoUser, CognitoUserAttribute } from "amazon-cognito-identity-js"
+import { CognitoAuth } from "amazon-cognito-auth-js";
 
 
 
 var UserContext = createContext()
 
-
+function GetUser(){
+    return UserPool.getCurrentUser()
+}
 
 function UpdateAttributes(attributes){
     var user = UserPool.getCurrentUser()
@@ -15,6 +18,7 @@ function UpdateAttributes(attributes){
         if (user===null){
             reject("User is not logged in")
         }
+
 
 
         console.log(user)
@@ -39,31 +43,7 @@ function UpdateAttributes(attributes){
     })
 }
 
-function Login(username, password){
-    const user = new CognitoUser({
-        Username:username,
-        Pool: UserPool
-    })
 
-    const authDetails = new AuthenticationDetails({
-        Username:username,
-        Password:password
-    })
-
-    return new Promise((resolve,reject)=>{
-        user.authenticateUser(authDetails, {
-            onSuccess: function(result) {
-               resolve('login success',result)
-            },
-            onFailure: function(err) {
-                reject(err)
-            },
-            newPasswordRequired: function(data) {
-                reject(data)
-            },
-        })
-    })
-}
 
 function ConfirmCode(code){
     var user = UserPool.getCurrentUser()
@@ -124,11 +104,35 @@ function ResendConfirmationCode(){
 
 export function UserProvider(props) {
     const [signedIn, setSignedIn] = useState(false)
-    useEffect(() => {
-        if(signedIn){
-            RefreshSession()
-        }
-    }, [])
+
+    function Login(username, password){
+        const user = new CognitoUser({
+            Username:username,
+            Pool: UserPool
+        })
+    
+        const authDetails = new AuthenticationDetails({
+            Username:username,
+            Password:password
+        })
+    
+        
+    
+        return new Promise((resolve,reject)=>{
+            user.authenticateUser(authDetails, {
+                onSuccess: function(result) {
+                    setSignedIn(true)
+                   resolve('login success',result)
+                },
+                onFailure: function(err) {
+                    reject(err)
+                },
+                newPasswordRequired: function(data) {
+                    reject(data)
+                },
+            })
+        })
+    }
 
     function Signup(username, password){
         return new Promise((resolve,reject)=>{
@@ -159,19 +163,58 @@ export function UserProvider(props) {
                     if(session===null){
                         reject("User is not logged in")
                     }
-                    user.refreshSession(session.refreshToken, (err,session)=>{
-                        if(err){
-                            reject(err)
-                        }
-                        else{
-                            setSignedIn(true)
-                            resolve(session)
-                        }
-                    })
+                    if(!session.refreshToken.token){
+                        reject("session token not available")
+                    }
+                    else{
+                        user.refreshSession(session.refreshToken, (err,session)=>{
+                            if(err){
+                                reject(err)
+                            }
+                            else{
+                                setSignedIn(true)
+                                resolve(session)
+                            }
+                        })
+                    }
                 }
             })
         })
     }
+
+    
+    useEffect(() => {
+        const authData = {
+            ClientId : '5rplipmsb4a6l4a04ffh2g75d0', // Your client id here
+            AppWebDomain : 'localhost:3000',
+            TokenScopesArray : ['email', 'profile','openid'], // e.g.['phone', 'email', 'profile','openid', 'aws.cognito.signin.user.admin'],
+            RedirectUriSignIn : 'http://localhost:3000/',
+            RedirectUriSignOut : 'http://localhost:3000/',
+            IdentityProvider : 'Google', // e.g. 'Facebook',
+            UserPoolId : 'ap-south-1_DTkRR7wmN', // Your user pool id here
+            AdvancedSecurityDataCollectionFlag : true, 
+        };
+        const auth = new CognitoAuth(authData);
+        auth.userhandler = {
+            onSuccess: function(result) {
+                RefreshSession()
+            },
+            onFailure: function(err) {
+                alert("Error!");
+            }
+        };
+        
+        const curUrl = window.location.href;
+        auth.parseCognitoWebResponse(curUrl);
+        
+    }, [])
+
+    useEffect(() => {
+      if(GetUser()!==null){
+        setSignedIn(true)
+      }
+    }, [])
+    
     
     
 
@@ -183,6 +226,8 @@ export function UserProvider(props) {
             UpdateAttributes,
             ConfirmCode,
             ResendConfirmationCode,
+            GetUser,
+            signedIn,
         }}>
             {props.children}
         </UserContext.Provider>

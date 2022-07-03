@@ -14,5 +14,10 @@ export const ProjectData = [
         title: "Demo Project 2", 
         description: "Insane Project Check it out now!", 
         link: "https://kadblue.com"
+    }, 
+    {
+        title: "Demo Project 2", 
+        description: "Insane Project Check it out now!", 
+        link: "https://kadblue.com"
     }
 ]
