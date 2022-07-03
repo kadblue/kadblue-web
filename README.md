@@ -1,3 +1,3 @@
 # Kadblue Website
 
-Official Kadblue Website (Hopefully!)
+Official Kadblue Projects Website

@@ -6,37 +6,36 @@ import { AuthenticationDetails, CognitoRefreshToken, CognitoUser, CognitoUserAtt
 
 var UserContext = createContext()
 
-function Signup(username, password){
-    UserPool.signUp(username,password,null,null,function(err,data){
-        if(err){
-            console.log(err)
-        }
-        else{
-            console.log(data)
-        }
-    }) 
-}
+
 
 function UpdateAttributes(attributes){
     var user = UserPool.getCurrentUser()
 
+    return new Promise((resolve,reject)=>{
+        if (user===null){
+            reject("User is not logged in")
+        }
 
-    console.log(user)
-    user.getSession((err,session)=>{
-        if(err){
-            console.log(err)
-        }
-        else{
-            console.log("inside update",session)
-        }
-    })
-    user.updateAttributes(attributes, (err,data)=>{
-        if(err){
-            console.error(err)
-        }
-        else{
-            console.log(data)
-        }
+
+        console.log(user)
+        user.getSession((err,session)=>{
+            if(err){
+                reject(err)
+            }
+            else{
+                if(!session.isValid()){
+                    reject("Session is not valid")
+                }
+            }
+        })
+        user.updateAttributes(attributes, (err,data)=>{
+            if(err){
+                reject(err)
+            }
+            else{
+                resolve(data)
+            }
+        })
     })
 }
 
@@ -51,77 +50,71 @@ function Login(username, password){
         Password:password
     })
 
-
-    
-
-    user.authenticateUser(authDetails, {
-        onSuccess: function(result) {
-            console.log('login success',result)
-        },
-        onFailure: function(err) {
-            console.error('login error',err)
-        },
-        newPasswordRequired: function(data) {
-            console.log('new password required',data)
-        },
+    return new Promise((resolve,reject)=>{
+        user.authenticateUser(authDetails, {
+            onSuccess: function(result) {
+               resolve('login success',result)
+            },
+            onFailure: function(err) {
+                reject(err)
+            },
+            newPasswordRequired: function(data) {
+                reject(data)
+            },
+        })
     })
 }
 
 function ConfirmCode(code){
     var user = UserPool.getCurrentUser()
-    user.confirmRegistration(code,true,(err,data)=>{
-        if(err){
-            console.error(err)
+    return new Promise((resolve,reject)=>{
+        if (user===null){
+            reject("User is not logged in")
         }
-        else{
-            console.log(data)
-        }
+        user.confirmRegistration(code,true,(err,data)=>{
+            if(err){
+                reject(err)
+            }
+            else{
+                resolve(data)
+            }
+        })
     })
 }
 
-function RefreshSession(){
 
-    var user = UserPool.getCurrentUser()
-    console.log(user)
-
-    user.getSession((err,session)=>{
-        if(err){
-            console.log(err)
-        }
-        else{
-            user.refreshSession(session.refreshToken, (err,session)=>{
-                if(err){
-                    console.log(err)
-                }
-                else{
-                    console.log("inside refresh",session)  
-                }
-            })
-        }
-    })
-}
 
 function ChangePassword(oldPassword, newPassword){
     var user = UserPool.getCurrentUser()
-    user.changePassword(oldPassword, newPassword, (err,data)=>{
-        if(err){
-            console.log(err)
+    return new Promise((resolve,reject)=>{
+        if (user===null){
+            reject("User is not logged in")
         }
-        else{
-            console.log(data)
-        }
+        user.changePassword(oldPassword, newPassword, (err,data)=>{
+            if(err){
+                reject(err)
+            }
+            else{
+                resolve(data)
+            }
+        })
     })
 }
 
 function ResendConfirmationCode(){
     var user = UserPool.getCurrentUser()
-    user.resendConfirmationCode((err,data)=>{
-        if(err){
-            console.log(err)
+    return new Promise((resolve,reject)=>{
+        if (user===null){
+            reject("User is not logged in")
         }
-        else{
-            console.log(data)
-        }
+        user.resendConfirmationCode((err,data)=>{
+            if(err){
+                reject(err)
+            }
+            else{
+                resolve(data)
+            }
+        })
     })
 }
 
@@ -130,12 +123,55 @@ function ResendConfirmationCode(){
 
 
 export function UserProvider(props) {
-
-    
-
+    const [signedIn, setSignedIn] = useState(false)
     useEffect(() => {
-        RefreshSession()
+        if(signedIn){
+            RefreshSession()
+        }
     }, [])
+
+    function Signup(username, password){
+        return new Promise((resolve,reject)=>{
+            UserPool.signUp(username,password,null,null,function(err,data){
+                if(err){
+                    reject(err)
+                }
+                else{
+                    setSignedIn(true)
+                    resolve(data)
+                }
+            })
+        }) 
+    }
+
+    function RefreshSession(){
+        var user = UserPool.getCurrentUser()
+    
+        return new Promise((resolve,reject)=>{
+            if (user===null){
+                reject("User is not logged in")
+            }
+            user.getSession((err,session)=>{
+                if(err){
+                    reject(err)
+                }
+                else{
+                    if(session===null){
+                        reject("User is not logged in")
+                    }
+                    user.refreshSession(session.refreshToken, (err,session)=>{
+                        if(err){
+                            reject(err)
+                        }
+                        else{
+                            setSignedIn(true)
+                            resolve(session)
+                        }
+                    })
+                }
+            })
+        })
+    }
     
     
 

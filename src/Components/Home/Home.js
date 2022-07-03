@@ -2,6 +2,7 @@ import { GitHub } from '@mui/icons-material';
 import { Button, Card, CardActions, CardContent, Grid, IconButton, Typography } from '@mui/material'
 import React, { useState } from 'react'
 import './home.css'
+import { ProjectData } from '../../Data/projects.js'
 
 
 
@@ -50,7 +51,7 @@ function Project(props){
 }
 
 export default function Home() {
-  var [projects, setProjects] = useState([{title: "Kadblue",github:"http://github.com/kadblue", description: "A social network for developers", link: "https://kadblue.com"}, {title: "Kadblue", description: "A social network for developers", link: "https://kadblue.com"}, {title: "Kadblue", description: "A social network for developers", link: "https://kadblue.com"}])
+  var [projects, setProjects] = useState(ProjectData)
   return (
     <Grid container rowSpacing='10px'>
       <Grid container item height='50px'/>
