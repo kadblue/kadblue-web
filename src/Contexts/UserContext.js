@@ -2,12 +2,14 @@ import { createContext, useEffect, useState } from "react";
 import UserPool from "../UserPool";
 import { AuthenticationDetails, CognitoRefreshToken, CognitoUser, CognitoUserAttribute } from "amazon-cognito-identity-js"
 import { CognitoAuth } from "amazon-cognito-auth-js";
+import { ClientId, DomainName, UserPoolId } from "../config";
 
 
 
 var UserContext = createContext()
 
 function GetUser(){
+    
     return UserPool.getCurrentUser()
 }
 
@@ -185,13 +187,13 @@ export function UserProvider(props) {
     
     useEffect(() => {
         const authData = {
-            ClientId : '5rplipmsb4a6l4a04ffh2g75d0', // Your client id here
-            AppWebDomain : 'localhost:3000',
-            TokenScopesArray : ['email', 'profile','openid'], // e.g.['phone', 'email', 'profile','openid', 'aws.cognito.signin.user.admin'],
-            RedirectUriSignIn : 'http://localhost:3000/',
-            RedirectUriSignOut : 'http://localhost:3000/',
-            IdentityProvider : 'Google', // e.g. 'Facebook',
-            UserPoolId : 'ap-south-1_DTkRR7wmN', // Your user pool id here
+            ClientId : ClientId,
+            AppWebDomain : DomainName,
+            TokenScopesArray : ['email', 'profile','openid'], 
+            RedirectUriSignIn : DomainName,
+            RedirectUriSignOut : DomainName,
+            IdentityProvider : 'Google',
+            UserPoolId : UserPoolId,
             AdvancedSecurityDataCollectionFlag : true, 
         };
         const auth = new CognitoAuth(authData);
@@ -200,7 +202,7 @@ export function UserProvider(props) {
                 RefreshSession()
             },
             onFailure: function(err) {
-                alert("Error!");
+                console.error(err)
             }
         };
         

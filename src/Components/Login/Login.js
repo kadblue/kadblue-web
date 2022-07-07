@@ -1,14 +1,16 @@
 import { Google } from '@mui/icons-material';
-import { Box, Button, Modal, Stack, TextField, Typography } from '@mui/material'
+import { Box, Button, Link, Modal, Snackbar, Stack, TextField, Typography } from '@mui/material'
 import React, { useContext, useState } from 'react'
+import { AuthURL, ClientId, DomainName } from '../../config';
 import UserContext from '../../Contexts/UserContext';
 
 const style = {
   position: 'absolute',
   top: '50%',
   left: '50%',
+  maxWidth: '500px',
+  minWidth: '300px',
   transform: 'translate(-50%, -50%)',
-  width: 400,
   bgcolor: 'background.paper',
   border: '2px solid #000',
   borderRadius: '4px',
@@ -19,20 +21,21 @@ const style = {
 export default function Login(props) {
 
   const { Login } = useContext(UserContext) 
-  const googleSignInLink = 'https://kadblue.auth.ap-south-1.amazoncognito.com/oauth2/authorize?identity_provider=Google&redirect_uri=http://localhost:3000&response_type=TOKEN&client_id=5rplipmsb4a6l4a04ffh2g75d0&scope=email openid phone profile'
-  const accountCreationLink = 'https://kadblue.auth.ap-south-1.amazoncognito.com/signup?client_id=5rplipmsb4a6l4a04ffh2g75d0&response_type=token&scope=email+openid+phone+profile&redirect_uri=http%3A%2F%2Flocalhost%3A3000'
+  const googleSignInLink = AuthURL+'/oauth2/authorize?identity_provider=Google&redirect_uri='+encodeURI(DomainName)+'&response_type=TOKEN&client_id='+encodeURI(ClientId)+'&scope=email openid phone profile'
+  const accountCreationLink = AuthURL+'/signup?client_id='+encodeURI(ClientId)+'&response_type=token&scope=email+openid+phone+profile&redirect_uri='+encodeURI(DomainName)
 
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState(false)
 
+
   function HandleSubmit(e){
     e.preventDefault()
-    console.log(username,password)
 
     Login(username,password)
     .then(res=>{
       props.setOpen(false)
+      props.onSuccess()
     }).catch(err=>{
       setError(true)
     })
@@ -43,7 +46,7 @@ export default function Login(props) {
         open={props.open}
         onClose={props.onClose}
     >
-        <Box sx={style}>
+        <Box sx={style} >
           <Typography id="modal-modal-title" variant="h6" component="h2" style={{textAlign:'center'}}>
                 Login
           </Typography>
@@ -59,7 +62,7 @@ export default function Login(props) {
             </div>
           </Stack>
           <div style={{textAlign:'center',marginTop:'20px'}}>
-            Don't Have an account? Create one <a href={accountCreationLink}>here</a>
+            Don't Have an account? Create one <Link href={accountCreationLink}>here</Link>
           </div>
               
         </Box>
