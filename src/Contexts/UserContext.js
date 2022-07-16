@@ -1,6 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 import UserPool from "../UserPool";
-import { AuthenticationDetails, CognitoRefreshToken, CognitoUser, CognitoUserAttribute } from "amazon-cognito-identity-js"
+import { AuthenticationDetails, CognitoUser } from "amazon-cognito-identity-js"
 import { CognitoAuth } from "amazon-cognito-auth-js";
 import { ClientId, DomainName, UserPoolId } from "../config";
 
@@ -20,10 +20,6 @@ function UpdateAttributes(attributes){
         if (user===null){
             reject("User is not logged in")
         }
-
-
-
-        console.log(user)
         user.getSession((err,session)=>{
             if(err){
                 reject(err)
@@ -64,8 +60,6 @@ function ConfirmCode(code){
     })
 }
 
-
-
 function ChangePassword(oldPassword, newPassword){
     var user = UserPool.getCurrentUser()
     return new Promise((resolve,reject)=>{
@@ -99,10 +93,6 @@ function ResendConfirmationCode(){
         })
     })
 }
-
-
-
-
 
 export function UserProvider(props) {
     const [signedIn, setSignedIn] = useState(false)
@@ -148,6 +138,28 @@ export function UserProvider(props) {
                 }
             })
         }) 
+    }
+
+    function GetSession(){
+        var user = UserPool.getCurrentUser()
+        return new Promise((resolve,reject)=>{
+            if (user===null){
+                reject("User is not logged in")
+            }
+            user.getSession((err,session)=>{
+                if(err){
+                    reject(err)
+                }
+                else{
+                    if(!session.isValid()){
+                        reject("Session is not valid")
+                    }
+                    else{
+                        resolve(session)
+                    }
+                }
+            })
+        })
     }
 
     function RefreshSession(){
@@ -229,6 +241,7 @@ export function UserProvider(props) {
             ConfirmCode,
             ResendConfirmationCode,
             GetUser,
+            GetSession,
             signedIn,
         }}>
             {props.children}

@@ -2,10 +2,11 @@ import { useEffect } from 'react';
 import './App.css';
 import Home from './Components/Home/Home';
 import { UserProvider } from './Contexts/UserContext';
-import UserPool from './UserPool';
 import { createTheme, CssBaseline, Paper } from '@mui/material'
 import { ThemeProvider } from '@mui/system';
 import { blue } from '@mui/material/colors';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import PlaceClone from './Components/Placeclone/Placeclone';
 
 function App() {
 
@@ -16,8 +17,8 @@ function App() {
         primary:blue[100],
       },
       background:{
-        default:blue[900],
-        paper:blue[900]
+        default:"#00013b",
+        paper:"#00013b"
       }
     }
   })
@@ -31,12 +32,15 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline/>
-      <Paper elevation={0}>
-        <UserProvider>
-          <Home/>
-        </UserProvider>
-      </Paper>
-
+      <UserProvider>
+        <BrowserRouter>
+          <Routes >
+            <Route path="/" element={<Home/>}/>
+            <Route path="/placeclone" element={<PlaceClone/>}/>
+          </Routes>
+        </BrowserRouter>
+      </UserProvider>
+      
     </ThemeProvider>
     
   );

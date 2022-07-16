@@ -1,5 +1,5 @@
 import { AccountCircle, GitHub, MenuBook, MenuOpen, MenuOutlined } from '@mui/icons-material';
-import { AppBar, Box, Button, Card, CardActions, CardContent, Grid, IconButton, Menu, Snackbar, Toolbar, Typography } from '@mui/material'
+import { AppBar, Box, Button, Card, CardActions, CardContent, Grid, IconButton, Menu, Paper, Snackbar, Toolbar, Typography } from '@mui/material'
 import React, { useContext, useState } from 'react'
 import { ProjectData } from '../../Data/projects.js'
 import UserContext from '../../Contexts/UserContext';
@@ -34,7 +34,7 @@ function Project(props){
           </Typography>
         </CardContent>
         <CardActions style={{justifyContent:'center'}}>
-          {props.link && <Button size="small" href={props.link} target="_blank">visit</Button>}
+          {props.link && <Button size="small" href={props.link} >visit</Button>}
           
           {props.github && <IconButton href={props.github} target="_blank"><GitHub/></IconButton>}
         </CardActions>
@@ -45,26 +45,28 @@ function Project(props){
 export default function Home() {
   var [projects, setProjects] = useState(ProjectData)
   return (
-    <Grid container>
-      {rows(<HomeCard/>)}
-      <Grid container item spacing='10px' padding={4}>
-            
-            {projects.map((project, index) => {
-              return (
-                <Grid key={index} item xs={12} sm={6} md={4}>
-                  <Project 
-                    key={index} 
-                    title={project.title} 
-                    description={project.description} 
-                    link={project.link} 
-                    github={project.github}
-                  />
-                </Grid>
-              )
-            })}
+    <Paper elevation={0}>
+      <Grid container>
+        {rows(<HomeCard/>)}
+        <Grid container item spacing='10px' padding={4}>
+              
+              {projects.map((project, index) => {
+                return (
+                  <Grid key={index} item xs={12} sm={6} md={4}>
+                    <Project 
+                      key={index} 
+                      title={project.title} 
+                      description={project.description} 
+                      link={project.link} 
+                      github={project.github}
+                    />
+                  </Grid>
+                )
+              })}
+        </Grid>
+        
+        
       </Grid>
-      
-      
-    </Grid>
+    </Paper>
   )
 }

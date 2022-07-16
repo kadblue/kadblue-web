@@ -6,18 +6,8 @@ export const ProjectData = [
         link: "https://projects.kadblue.com"
     }, 
     {
-        title: "Demo Project", 
-        description: "Descriptions for an Amazing Project!", 
-        link: "https://projects.kadblue.com"
+        title: "Place Clone", 
+        description: "An api clone of the project r/place, anyone can update a pixel  ", 
+        link: "/placeclone"
     }, 
-    {
-        title: "Demo Project 2", 
-        description: "Insane Project Check it out now!", 
-        link: "https://projects.kadblue.com"
-    }, 
-    {
-        title: "Demo Project 2", 
-        description: "Insane Project Check it out now!", 
-        link: "https://projects.kadblue.com"
-    }
 ]
